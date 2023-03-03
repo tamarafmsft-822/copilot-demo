@@ -2,9 +2,9 @@ name: Demo7_GitHubActions
 
 on:
   push:
-    paths:
+    branches:
       - main
-
+      
 jobs:
   build:
     runs-on: ubuntu-latest

@@ -20,7 +20,8 @@ jobs:
         with:
           azcliversion: 2.0.80
           inlineScript: |
-            az group create --name myResourceGroup --location eastus --subscription d94d53db-fe3b-46a9-b973-476e6e214fe2
+            az account set --subscription d94d53db-fe3b-46a9-b973-476e6e214fe2 
+            az group create --name myResourceGroup --location eastus 
       - name: Create storage account
         uses: azure/CLI@v1
         with:

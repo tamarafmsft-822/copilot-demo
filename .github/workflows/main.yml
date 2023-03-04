@@ -30,14 +30,14 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az storage account create --name "copilotcicd${{ steps.random_prefix.outputs.prefix }}" --location eastus --resource-group myResourceGroup --sku Standard_LRS
+            az storage account create --name "copilotcicd${{ steps.random_prefix.outputs.prefix }}" --location eastus --resource-group copilot-cicd --sku Standard_LRS
 
       - name: Get storage account key
         id: storage_account_key
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            STORAGE_ACCOUNT_KEY=$(az storage account keys list --resource-group myResourceGroup --account-name "copilotcicd${{ steps.random_prefix.outputs.prefix }}" --query "[0].value" -o tsv)
+            STORAGE_ACCOUNT_KEY=$(az storage account keys list --resource-group copilot-cicd --account-name "copilotcicd${{ steps.random_prefix.outputs.prefix }}" --query "[0].value" -o tsv)
             echo "##vso[task.setvariable variable=STORAGE_ACCOUNT_KEY]$STORAGE_ACCOUNT_KEY"
             
       - name: Create container

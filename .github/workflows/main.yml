@@ -20,31 +20,40 @@ jobs:
         with:
           inlineScript: |
             az account set --subscription d94d53db-fe3b-46a9-b973-476e6e214fe2 
-            az group create --name myResourceGroup --location eastus 
+            az group create --name copilot-cicd --location eastus 
+
+      - name: Generate random prefix
+        id: random_prefix
+        run: echo "::set-output name=prefix::$(openssl rand -hex 4)"
+
       - name: Create storage account
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az storage account create --name myStorageAccount --location eastus --resource-group myResourceGroup --sku Standard_LRS
+            az storage account create --name "copilotcicd${{ steps.random_prefix.outputs.prefix }}" --location eastus --resource-group myResourceGroup --sku Standard_LRS
+
       - name: Get storage account key
         id: storage_account_key
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            STORAGE_ACCOUNT_KEY=$(az storage account keys list --resource-group myResourceGroup --account-name myStorageAccount --query "[0].value" -o tsv)
+            STORAGE_ACCOUNT_KEY=$(az storage account keys list --resource-group myResourceGroup --account-name "copilotcicd${{ steps.random_prefix.outputs.prefix }}" --query "[0].value" -o tsv)
             echo "##vso[task.setvariable variable=STORAGE_ACCOUNT_KEY]$STORAGE_ACCOUNT_KEY"
+            
       - name: Create container
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az storage container create --name myContainer --account-name myStorageAccount --account-key ${{ steps.storage_account_key.outputs.STORAGE_ACCOUNT_KEY }}
+            az storage container create --name myContainer --account-name "copilotcicd${{ steps.random_prefix.outputs.prefix }}" --account-key ${{ steps.storage_account_key.outputs.STORAGE_ACCOUNT_KEY }}
+            
       - name: Upload file to container
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az storage blob upload --container-name myContainer --file README.md --name README.md --account-name myStorageAccount --account-key ${{ steps.storage_account_key.outputs.STORAGE_ACCOUNT_KEY }}
+            az storage blob upload --container-name myContainer --file README.md --name README.md --account-name "copilotcicd${{ steps.random_prefix.outputs.prefix }}" --account-key ${{ steps.storage_account_key.outputs.STORAGE_ACCOUNT_KEY }}
+            
       - name: List blobs in container
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az storage blob list --container-name
+            az storage blob list --container-name myContainer --account-name "copilotcicd${{ steps.random_prefix.outputs.prefix }}" --account-key ${{ steps.storage_account_key.outputs.STORAGE_ACCOUNT_KEY }}
